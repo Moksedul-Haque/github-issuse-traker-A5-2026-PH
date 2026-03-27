@@ -21,7 +21,7 @@
 
 </head>
 
-<body class="justify-center items-center min-h-screen ">
+<body class="min-h-screen ">
 
     <div id="mainDiv" class="container flex justify-center items-center min-h-screen  bg-slate-400">
         <div class="title">
@@ -62,34 +62,44 @@
         </div>
     </div>
 
-    <section id="todoSection" class="hidden">
-        <header class="pt-7 pb-4"><button class="btn ml-2 w-[100px] hover:to-blue-600 ">All</button><button
-                class="btn ml-2 w-[100px]">Open</button><button class="btn ml-2 w-[100px]">Closed</button>
-        </header>
 
-        <div class="total flex justify-between p-4 border-1 border-black-300 rounded">
-            <div class="flex gap-3">
-                <div><img class="mt-4" src="./assets/Aperture.png" alt=""></div>
-                <div>
-                    <h3 class="text-2xl font-bold">50 Issues</h3>
-                    <p>Track and manage your project issues</p>
+
+
+    <section id="todoSection" class="hidden">
+        <div class="sticky top-0 left-0 right-0 z-50 bg-white shadow">
+
+            <header class=" p-4 flex justify-center gap-2"><button
+                    class="btn ml-2 w-[100px] hover:to-blue-600 mx-auto ">All</button><button
+                    class="btn ml-2 w-[100px]">Open</button><button class="btn ml-2 w-[100px]">Closed</button>
+            </header>
+
+
+            <div class="total flex justify-between p-4 border-1 border-black-300 rounded left-0 w-full">
+                <div class="flex gap-3">
+                    <div><img class="mt-4" src="./assets/Aperture.png" alt=""></div>
+                    <div>
+                        <h3 class="text-2xl font-bold">50 Issues</h3>
+                        <p>Track and manage your project issues</p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex gap-4 mt-5 ">
-                <p class="flex"><img class="w-6 h-6 mr-2" src="./assets/Open-Status.png" alt="">open</p>
-                <p class="flex"><img class="w-6 h-6 mr-2" src="./assets/Closed- Status .png" alt="">Closed</p>
+                <div class="flex gap-4 mt-5 ">
+                    <p class="flex"><img class="w-6 h-6 mr-2" src="./assets/Open-Status.png" alt="">open</p>
+                    <p class="flex"><img class="w-6 h-6 mr-2" src="./assets/Closed- Status .png" alt="">Closed</p>
+                </div>
+
             </div>
 
         </div>
-
-
 
         <div id="todosContainer"
             class="containerCard grid grid-cols-1 min-[600px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
 
 
         </div>
+
     </section>
+
+
     <section>
 
 
@@ -106,6 +116,8 @@
             </div>
         </dialog>
     </section>
+
+
 
     <script src="./script.js"></script>
 </body>
