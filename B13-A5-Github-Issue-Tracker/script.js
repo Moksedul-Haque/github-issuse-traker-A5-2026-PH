@@ -8,7 +8,7 @@ const mainDiv = document.getElementById("mainDiv");
 const logiForm = document.getElementById("loginForm");
 
 loginBtn.addEventListener("click", (e) => {
-
+    e.preventDefault();
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
@@ -26,15 +26,69 @@ loginBtn.addEventListener("click", (e) => {
     }
 });
 
+let openCount = 0;
+let openedIds = [];
+let allTodos = [];
+
 
 const loadTodo = () => {
     const url = "https://phi-lab-server.vercel.app/api/v1/lab/issues";
     fetch(url)
         .then((res) => res.json())
-        .then((data) => displayTodo(data.data))
+        .then((data) => {
+            allTodos = data.data; // 🔥 save all
+            displayTodo(allTodos);
+        });
 }
 
-console.log(loadTodo)
+const loadModalDetails = async (id) => {
+    const url = `https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`;
+    const res = await fetch(url);
+    const details = await res.json();
+
+    displayModal(details.data);
+    if (!openedIds.includes(id)) {
+        openedIds.push(id);
+
+    }
+
+    openCount++;
+    document.getElementById("openCountBtn").innerText = `Open (${openCount})`;
+
+    document.getElementById("my_modal_4").showModal();
+}
+const displayModal = (todo) => {
+    const detailsContainer = document.getElementById("modalContent");
+
+    const dynamicButton = todo.labels.map((label) => {
+        return `<button class="btn m-1">${label}</button>`;
+    }).join(" ");
+
+    detailsContainer.innerHTML = `
+        <h3 class="text-2xl font-bold mb-2 ">${todo.title}</h3>
+
+        <div class="flex gap-5 mt-3">
+            <button class="btn rounded-full bg-yellow-300">Opened</button>
+            <h6>${todo.author}</h6>
+            <p>${todo.updatedAt}</p>
+        </div>
+
+        <div class="mt-5 mb-6">${dynamicButton}</div>
+
+        <p>${todo.description}</p>
+
+        <div class="mt-5 flex justify-between pb-4">
+            <div>
+                <p>Assignee</p>
+                <h4 class="font-bold">${todo.author}</h4>
+            </div>
+            <div>
+                <p>Priority</p>
+                <button class="btn bg-green-400">${todo.priority}</button>
+            </div>
+        </div>
+    `;
+};
 
 const displayTodo = (todos) => {
     const todoContainer = document.getElementById("todosContainer");
@@ -65,7 +119,7 @@ const displayTodo = (todos) => {
         }).join(" ")
 
         div.innerHTML = `
-              <div onclick="my_modal_4.showModal()"  class="  pt-3 ] rounded ">
+              <div onclick="loadModalDetails(${todo.id})"  class="  pt-3 ] rounded ">
                 <div class="flex justify-between pb-5 ">
                     <div class=""><img class="w-10" src="./assets/Open-Status.png" alt=""></div>
                     <button class="btn bg-yellow-300 text-yellow-800">${todo.

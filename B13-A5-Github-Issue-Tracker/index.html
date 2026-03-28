@@ -9,7 +9,7 @@
 
     <!-- daisyuI -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
 
     <!-- css file -->
     <link rel="stylesheet" href="style.css">
@@ -62,14 +62,19 @@
         </div>
     </div>
 
+    <section class="p-5">
+
+
+    </section>
+
 
 
 
     <section id="todoSection" class="hidden">
         <div class="sticky top-0 left-0 right-0 z-50 bg-white shadow">
 
-            <header class=" p-4 flex justify-center gap-2"><button
-                    class="btn ml-2 w-[100px] hover:to-blue-600 mx-auto ">All</button><button
+            <header class=" p-4 justify-start gap-2"><button
+                    class="btn ml-2 w-[100px] hover:to-blue-600 mx-auto ">All</button><button id="openCountBtn"
                     class="btn ml-2 w-[100px]">Open</button><button class="btn ml-2 w-[100px]">Closed</button>
             </header>
 
@@ -104,18 +109,18 @@
 
 
         <dialog id="my_modal_4" class="modal">
-            <div class="modal-box w-11/12 max-w-5xl">
-                <h3 class="text-lg font-bold">Hello!</h3>
-                <p class="py-4">Click the button below to close</p>
+            <div id="modalContainer" class="modal-box">
+                <div id="modalContent"></div>
+
                 <div class="modal-action">
                     <form method="dialog">
-
                         <button class="btn">Close</button>
                     </form>
                 </div>
             </div>
         </dialog>
     </section>
+
 
 
 
