@@ -1,83 +1,131 @@
-
-
 const loginBtn = document.getElementById("loginBtn");
-const loginDiv = document.getElementById("loginDiv");
 const todosSection = document.getElementById("todoSection");
-const todoContainer = document.getElementById("todosContainer");
 const mainDiv = document.getElementById("mainDiv");
-const logiForm = document.getElementById("loginForm");
 
-loginBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    if (username === "admin" && password === "admin123") {
-        // Success
-        mainDiv.classList.add("hidden");
-
-        // show cards section
-        todosSection.classList.remove("hidden");
-
-        // load data
-        loadTodo();
-    } else {
-        alert("Username or password incorrect"); // Error message
-    }
-});
 
 let openCount = 0;
 let openedIds = [];
 let allTodos = [];
 
+loginBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (username === "admin" && password === "admin123") {
+        mainDiv.classList.add("hidden");
+        todosSection.classList.remove("hidden");
+
+        loadTodo();
+    } else {
+        alert("Username or password incorrect");
+    }
+});
+
 
 const loadTodo = () => {
-    const url = "https://phi-lab-server.vercel.app/api/v1/lab/issues";
-    fetch(url)
-        .then((res) => res.json())
-        .then((data) => {
-            allTodos = data.data; // 🔥 save all
+    fetch("https://phi-lab-server.vercel.app/api/v1/lab/issues")
+        .then(res => res.json())
+        .then(data => {
+            allTodos = data.data;
             displayTodo(allTodos);
+            updateClosedCount();
         });
-}
+};
+
+
+const handleSearch = () => {
+    const query = document.getElementById("searchInput").value.trim();
+
+    if (!query) {
+        displayTodo(allTodos);
+        return;
+    }
+
+    fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${query}`)
+        .then(res => res.json())
+        .then(data => {
+            allTodos = data.data;
+
+
+            openedIds = [];
+            openCount = 0;
+            document.getElementById("openCountBtn").innerText = `Open (0)`;
+
+            displayTodo(allTodos);
+            updateClosedCount();
+        });
+};
+
+
+document.getElementById("searchBtn").addEventListener("click", handleSearch);
+document.getElementById("searchInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleSearch();
+});
+
+
+document.getElementById("allBtn").addEventListener("click", () => {
+    displayTodo(allTodos);
+});
+
+document.getElementById("openCountBtn").addEventListener("click", () => {
+    const openTodos = allTodos.filter(todo => openedIds.includes(todo.id));
+    displayTodo(openTodos);
+});
+
+document.getElementById("closedCountBtn").addEventListener("click", () => {
+    const closedTodos = allTodos.filter(todo => !openedIds.includes(todo.id));
+    displayTodo(closedTodos);
+});
 
 const loadModalDetails = async (id) => {
-    const url = `https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`;
-    const res = await fetch(url);
+    const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`);
     const details = await res.json();
 
     displayModal(details.data);
+
+
     if (!openedIds.includes(id)) {
         openedIds.push(id);
-
+        openCount++;
     }
 
-    openCount++;
     document.getElementById("openCountBtn").innerText = `Open (${openCount})`;
 
+    updateClosedCount();
+
     document.getElementById("my_modal_4").showModal();
-}
+};
+
+
+const updateClosedCount = () => {
+    const closedCount = allTodos.length - openedIds.length;
+    document.getElementById("closedCountBtn").innerText = `Closed (${closedCount})`;
+};
+
+
 const displayModal = (todo) => {
-    const detailsContainer = document.getElementById("modalContent");
+    const container = document.getElementById("modalContent");
 
-    const dynamicButton = todo.labels.map((label) => {
-        return `<button class="btn m-1">${label}</button>`;
-    }).join(" ");
+    const labels = todo.labels.map(label =>
+        `<button class="btn m-1">${label}</button>`
+    ).join("");
 
-    detailsContainer.innerHTML = `
-        <h3 class="text-2xl font-bold mb-2 ">${todo.title}</h3>
+    container.innerHTML = `
+        <h3 class="text-2xl font-bold">${todo.title}</h3>
 
-        <div class="flex gap-5 mt-3">
-            <button class="btn rounded-full bg-yellow-300">Opened</button>
-            <h6>${todo.author}</h6>
+        <div class="flex gap-4 mt-3">
+            <button class="btn bg-yellow-300">Opened</button>
+            <p>${todo.author}</p>
             <p>${todo.updatedAt}</p>
         </div>
 
-        <div class="mt-5 mb-6">${dynamicButton}</div>
+        <div class="mt-4">${labels}</div>
 
-        <p>${todo.description}</p>
+        <p class="mt-4">${todo.description}</p>
 
-        <div class="mt-5 flex justify-between pb-4">
+        <div class="flex justify-between mt-5">
             <div>
                 <p>Assignee</p>
                 <h4 class="font-bold">${todo.author}</h4>
@@ -91,65 +139,43 @@ const displayModal = (todo) => {
 };
 
 const displayTodo = (todos) => {
-    const todoContainer = document.getElementById("todosContainer");
-    todoContainer.innerHTML = "";
+    const container = document.getElementById("todosContainer");
+    container.innerHTML = "";
 
     todos.forEach(todo => {
-
         const div = document.createElement("div");
-        div.classList = "bg-white p-4 rounded shadow mb-3";
+        div.className = "bg-white p-4 rounded shadow";
 
-        const dynamicButton = todo.labels.map((label) => {
+        const labels = todo.labels.map(label => {
+            let color = "bg-gray-300";
 
-            let colorClass = "";
+            if (label === "bug") color = "bg-red-300";
+            else if (label === "enhancement") color = "bg-blue-300";
+            else if (label === "documentation") color = "bg-green-300";
+            else if (label === "help wanted") color = "bg-yellow-300";
 
-            if (label === "bug") {
-                colorClass = "bg-red-300 text-red-800";
-            } else if (label === "enhancement") {
-                colorClass = "bg-blue-300 text-blue-800";
-            } else if (label === "documentation") {
-                colorClass = "bg-green-300 text-green-800";
-            } else if (label === "help wanted") {
-                colorClass = "bg-yellow-300 text-yellow-800";
-            } else {
-                colorClass = "bg-gray-300 text-gray-800";
-            };
-
-            return `<button  class="${colorClass} btn m-1">${label}</button>`
-        }).join(" ")
+            return `<button class="btn ${color} m-1">${label}</button>`;
+        }).join("");
 
         div.innerHTML = `
-              <div onclick="loadModalDetails(${todo.id})"  class="  pt-3 ] rounded ">
-                <div class="flex justify-between pb-5 ">
-                    <div class=""><img class="w-10" src="./assets/Open-Status.png" alt=""></div>
-                    <button class="btn bg-yellow-300 text-yellow-800">${todo.
-                priority}</button>
+            <div onclick="loadModalDetails(${todo.id})" class="cursor-pointer">
+                <div class="flex justify-between">
+                    <img class="w-8" src="./assets/Open-Status.png">
+                    <button class="btn bg-yellow-300">${todo.priority}</button>
                 </div>
-                <h2 class="font-bold text-2xl">${todo.title}</h2>
+
+                <h2 class="font-bold text-xl mt-2">${todo.title}</h2>
                 <p>${todo.description}</p>
-                <div class="btns pt-3 pb-6 block">
-                 
-                    <div>${dynamicButton}</div>
-            
-           
+
+                <div class="mt-3">${labels}</div>
+
+                <div class="mt-3 text-sm">
+                    <p>${todo.author}</p>
+                    <p>${todo.updatedAt}</p>
                 </div>
-                <div class="ml-5 pb-4">
-                    <p class="">${todo.author
-            }</p>
-                    <p class="">${todo.
-                updatedAt}</p>
-                </div>
-
-
-
             </div>
         `;
 
-        todoContainer.appendChild(div);
+        container.appendChild(div);
     });
-
 };
-loadTodo();
-
-
-
